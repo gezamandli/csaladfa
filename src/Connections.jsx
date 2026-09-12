@@ -3,7 +3,6 @@ import { CARD_W, CARD_H } from './data';
 export default function Connections({ couples, relations, positions }) {
   const lines = [];
 
-  // Spouse lines
   couples.forEach(c => {
     const p1 = positions[c.p1];
     const p2 = positions[c.p2];
@@ -17,15 +16,17 @@ export default function Connections({ couples, relations, positions }) {
     lines.push(
       <g key={`sp-${c.id}`}>
         <line x1={leftX} y1={midY} x2={rightX} y2={midY}
-          stroke="#9a7030" strokeWidth={2.5} strokeDasharray="7 4" />
+          style={{ stroke: 'var(--line-spouse)', strokeDasharray: '7 4' }}
+          strokeWidth={2.5} />
         <circle cx={midX} cy={midY} r={9}
-          fill="#fdf4e0" stroke="#9a7030" strokeWidth={2} />
-        <text x={midX} y={midY + 5} textAnchor="middle" fontSize={11} fill="#9a7030">♥</text>
+          style={{ fill: 'var(--line-heart-bg)', stroke: 'var(--line-spouse)' }}
+          strokeWidth={2} />
+        <text x={midX} y={midY + 5} textAnchor="middle" fontSize={11}
+          style={{ fill: 'var(--line-spouse)' }}>♥</text>
       </g>
     );
   });
 
-  // Parent → child curves
   relations.forEach(rel => {
     const couple = couples.find(c => c.id === rel.coupleId);
     if (!couple) return;
@@ -45,7 +46,7 @@ export default function Connections({ couples, relations, positions }) {
       <path
         key={`rel-${rel.coupleId}-${rel.childId}`}
         d={`M ${fromX} ${fromY} C ${fromX} ${cp1Y}, ${toX} ${cp2Y}, ${toX} ${toY}`}
-        stroke="#5a2800"
+        style={{ stroke: 'var(--line-parent)' }}
         strokeWidth={2.2}
         fill="none"
         strokeLinecap="round"

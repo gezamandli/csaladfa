@@ -36,9 +36,13 @@ export function useTreeStore() {
     });
   }, []);
 
-  // ── Title ─────────────────────────────────────────────────────────────────
+  // ── Title & Theme ─────────────────────────────────────────────────────────
   const setTitle = useCallback((title) => {
     update(s => ({ ...s, title }));
+  }, [update]);
+
+  const setTheme = useCallback((theme) => {
+    update(s => ({ ...s, theme }));
   }, [update]);
 
   // ── Positions ────────────────────────────────────────────────────────────
@@ -184,7 +188,9 @@ export function useTreeStore() {
   return {
     ...state,
     title: state.title ?? 'Mándli Családfa',
+    theme: state.theme ?? 'perkament',
     setTitle,
+    setTheme,
     moveCard,
     addPerson,
     editPerson,

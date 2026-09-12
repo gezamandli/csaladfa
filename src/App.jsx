@@ -99,7 +99,7 @@ export default function App() {
   });
 
   return (
-    <div className="app">
+    <div className="app" data-theme={store.theme ?? 'perkament'}>
       {/* ── Header ── */}
       <header className="site-header no-print">
         <div className="header-left">
@@ -138,6 +138,21 @@ export default function App() {
           <button className="btn btn-gray"   onClick={() => { if(confirm('Visszaállítod az eredeti elrendezést?')) store.resetLayout(); }}>↺ Eredeti</button>
           <input ref={fileInputRef} type="file" accept=".json" style={{ display:'none' }} onChange={handleImport} />
           <input ref={csvInputRef}  type="file" accept=".csv"  style={{ display:'none' }} onChange={handleImportCSV} />
+        </div>
+        <div className="theme-switcher" title="Téma váltása">
+          <span className="theme-label">Téma:</span>
+          {[
+            { id: 'perkament', label: 'Perkament', cls: 'theme-dot-perkament' },
+            { id: 'erdo',      label: 'Erdő',      cls: 'theme-dot-erdo' },
+            { id: 'barokk',    label: 'Barokk',    cls: 'theme-dot-barokk' },
+            { id: 'neon',      label: 'Neon',       cls: 'theme-dot-neon' },
+          ].map(t => (
+            <div key={t.id}
+              className={`theme-dot ${t.cls} ${(store.theme ?? 'perkament') === t.id ? 'active' : ''}`}
+              title={t.label}
+              onClick={() => store.setTheme(t.id)}
+            />
+          ))}
         </div>
       </header>
 
