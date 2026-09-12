@@ -5,6 +5,7 @@ import PersonCard from './PersonCard';
 import Connections from './Connections';
 import PersonModal from './PersonModal';
 import PrintView from './PrintView';
+import FanView from './FanView';
 import { useRef } from 'react';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
   const [cpP1, setCpP1] = useState('');
   const [cpP2, setCpP2] = useState('');
   const [templateMode, setTemplateMode] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const fileInputRef = useRef(null);
@@ -129,6 +131,7 @@ export default function App() {
           <button className="btn btn-gold"   onClick={() => setModalPersonId('new')}>+ Személy</button>
           <button className="btn btn-gold"   onClick={() => setShowCoupleModal(true)}>♥ Pár</button>
           <button className="btn btn-cyan"   onClick={handleAutoLayout}>⚙ Auto-elrendezés</button>
+          <button className="btn btn-purple" style={{fontWeight:900}} onClick={() => setViewMode(v => v === 'grid' ? 'fan' : 'grid')}>{viewMode === 'grid' ? '🌀 Legyező' : '📋 Táblázatos'}</button>
           <button className="btn btn-green"  onClick={store.exportJSON}>💾 Mentés</button>
           <button className="btn btn-blue"   onClick={() => fileInputRef.current.click()}>📂 Betöltés</button>
           <button className="btn btn-blue"   onClick={() => csvInputRef.current.click()}>📥 CSV</button>
@@ -181,7 +184,16 @@ export default function App() {
       </div>
 
       {/* ── Interactive tree (screen only) ── */}
-      <div className="tree-wrap no-print">
+      {viewMode === 'fan' ? (
+        <FanView
+          people={store.people}
+          couples={store.couples}
+          relations={store.relations}
+          title={store.title}
+          isDark={['barokk','neon'].includes(store.theme ?? 'perkament')}
+        />
+      ) : null}
+      <div className={`tree-wrap no-print${viewMode === 'fan' ? ' hidden-grid' : ''}`}>
         <div className="tree-canvas" style={{ width: maxX, height: maxY }}>
           {genRows.map(g => {
             const yMin = store.people.filter(p => p.gen === g)

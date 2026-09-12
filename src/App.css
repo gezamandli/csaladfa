@@ -698,3 +698,15 @@ body { font-family: Georgia, serif; background: #111; color: #333; min-height: 1
   text-shadow: 0 0 8px rgba(200,160,60,.4), 1px 1px 0 rgba(0,0,0,.6);
 }
 [data-theme="barokk"][data-card-style="ko"] .card-dates { color: #c0a870; }
+
+/* ── Fan view ────────────────────────────────────────────────────────── */
+.fan-wrap {
+  width: 100%;
+  overflow: hidden;
+  min-height: calc(100vh - 128px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--tree-bg);
+}
+.hidden-grid { display: none !important; }
