@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { personName, calcAge } from './data';
 
-const RADII = [46, 100, 170, 254, 364];
-const W = 920, H = 550;
-const CX = W / 2, CY = H - 18;
+const RADII = [50, 110, 188, 286, 438];
+const W = 900, H = 626;
+const CX = W / 2, CY = H - 14;
 
 function pt(r, aDeg) {
   const rad = aDeg * Math.PI / 180;
@@ -162,6 +162,7 @@ export default function FanView({ people, couples, relations, title, isDark, tem
   return (
     <div className="fan-wrap">
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="xMidYMid meet"
         style={{ display:'block', maxHeight:'calc(100vh - 128px)', background: bgFill }}>
 
         {/* Ring arcs */}
@@ -246,7 +247,6 @@ export default function FanView({ people, couples, relations, title, isDark, tem
           fontFamily="Georgia,serif" fontStyle="italic"
           fill={isDark ? 'rgba(200,168,80,.45)' : 'rgba(100,60,20,.35)'}>
           {title ?? 'Legyező'}
-          {templateMode ? ' – Sablon' : ''}
         </text>
       </svg>
     </div>
