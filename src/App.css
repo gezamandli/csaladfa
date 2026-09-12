@@ -458,3 +458,243 @@ body { font-family: Georgia, serif; background: #111; color: #333; min-height: 1
   }
   .print-view svg { display: block; width: 100%; height: 100%; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   CARD STYLE SWITCHER
+   ══════════════════════════════════════════════════════════════════════ */
+.card-style-dot {
+  width: 28px; height: 28px; border-radius: 7px; cursor: pointer;
+  border: 2px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: transform .15s, border-color .15s;
+  background: rgba(255,255,255,.08);
+}
+.card-style-dot:hover { transform: scale(1.15); border-color: rgba(255,255,255,.6); }
+.card-style-dot.active {
+  border-color: var(--gold);
+  background: rgba(255,255,255,.18);
+  box-shadow: 0 0 0 2px var(--gold-dark);
+  transform: scale(1.12);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CARD STYLE: LÁDA (wooden crate)
+   ══════════════════════════════════════════════════════════════════════ */
+[data-card-style="lada"] .card {
+  border-radius: 4px;
+  border: 3px solid #5a3010;
+  border-bottom-width: 6px;
+  border-right-width: 5px;
+  border-color: #6a4020 #3a1808 #3a1808 #6a4020;
+
+  /* Wood grain: horizontal plank lines + base color */
+  background-image:
+    /* plank dividers */
+    repeating-linear-gradient(
+      180deg,
+      transparent       0px,
+      transparent       30px,
+      rgba(0,0,0,.10)  30px,
+      rgba(0,0,0,.10)  32px,
+      rgba(255,255,255,.04) 32px,
+      rgba(255,255,255,.04) 33px
+    ),
+    /* vertical grain */
+    repeating-linear-gradient(
+      93deg,
+      transparent       0px,
+      transparent       8px,
+      rgba(0,0,0,.025) 8px,
+      rgba(0,0,0,.025) 9px
+    );
+  background-color: #c8844a;
+
+  box-shadow:
+    inset  1px  1px 0 rgba(255,255,255,.22),
+    inset -1px -1px 0 rgba(0,0,0,.2),
+    3px 5px 12px rgba(0,0,0,.4);
+}
+
+/* Male = lighter oak, Female = darker mahogany */
+[data-card-style="lada"] .card.male   { background-color: #d49a5a; }
+[data-card-style="lada"] .card.female { background-color: #a85a38; }
+[data-card-style="lada"] .card.deceased { filter: grayscale(45%) brightness(.82); }
+
+/* Top stripe → becomes a top plank rail with a dark line */
+[data-card-style="lada"] .card::before {
+  height: 6px;
+  border-radius: 1px 1px 0 0;
+  background: linear-gradient(180deg, #4a2808 0%, #7a4820 60%, #5a3010 100%);
+}
+[data-card-style="lada"] .card.male::before,
+[data-card-style="lada"] .card.female::before {
+  background: linear-gradient(180deg, #3a1808 0%, #6a3810 60%, #4a2408 100%);
+}
+
+/* Corner nails via box-shadow on a pseudo */
+[data-card-style="lada"] .card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  pointer-events: none;
+  background:
+    /* TL */ radial-gradient(circle at 9px 12px,   #8a5a28 3px, rgba(60,30,10,.4) 4px, transparent 5px),
+    /* TR */ radial-gradient(circle at calc(100% - 9px) 12px,  #8a5a28 3px, rgba(60,30,10,.4) 4px, transparent 5px),
+    /* BL */ radial-gradient(circle at 9px calc(100% - 8px),   #8a5a28 3px, rgba(60,30,10,.4) 4px, transparent 5px),
+    /* BR */ radial-gradient(circle at calc(100% - 9px) calc(100% - 8px), #8a5a28 3px, rgba(60,30,10,.4) 4px, transparent 5px);
+}
+
+[data-card-style="lada"] .card-name   { color: #2a1006; text-shadow: 0 1px 0 rgba(255,255,255,.25); }
+[data-card-style="lada"] .card-dates  { color: #4a2808; }
+[data-card-style="lada"] .card-age    { color: #6a4020; }
+[data-card-style="lada"] .card-gender { color: #4a2808; }
+[data-card-style="lada"] .card.female .card-gender { color: #3a1008; }
+[data-card-style="lada"] .card-note   { color: #8a5830; }
+[data-card-style="lada"] .card.self-card::after {
+  border: 2.5px solid #f0c060;
+  box-shadow: 0 0 8px rgba(240,192,96,.5);
+}
+
+/* Neon + Láda = glowing crates */
+[data-theme="neon"][data-card-style="lada"] .card {
+  border-color: #00ffcc44 #00aa8844 #00aa8844 #00ffcc44;
+  background-color: #0a1a10;
+  background-image:
+    repeating-linear-gradient(180deg, transparent 0px, transparent 30px, rgba(0,255,150,.06) 30px, rgba(0,255,150,.06) 32px),
+    repeating-linear-gradient(93deg, transparent 0px, transparent 8px, rgba(0,255,150,.03) 8px, rgba(0,255,150,.03) 9px);
+  box-shadow: 0 0 18px rgba(0,255,150,.18), inset 0 0 8px rgba(0,255,150,.05);
+}
+[data-theme="neon"][data-card-style="lada"] .card.male   { background-color: #04141c; }
+[data-theme="neon"][data-card-style="lada"] .card.female { background-color: #180414; }
+[data-theme="neon"][data-card-style="lada"] .card.male::before,
+[data-theme="neon"][data-card-style="lada"] .card.female::before {
+  background: linear-gradient(90deg, var(--blue-deep), var(--pink-deep));
+}
+[data-theme="neon"][data-card-style="lada"] .card::after {
+  background:
+    radial-gradient(circle at 9px 12px,   #00ffcc 2px, transparent 4px),
+    radial-gradient(circle at calc(100% - 9px) 12px,  #00ffcc 2px, transparent 4px),
+    radial-gradient(circle at 9px calc(100% - 8px),   #00ffcc 2px, transparent 4px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 8px), #00ffcc 2px, transparent 4px);
+}
+[data-theme="neon"][data-card-style="lada"] .card-name  { color: #c0fff0; text-shadow: 0 0 8px rgba(0,255,200,.5); }
+[data-theme="neon"][data-card-style="lada"] .card-dates { color: #80eedd; }
+[data-theme="neon"][data-card-style="lada"] .card-age   { color: #60ccaa; }
+[data-theme="neon"][data-card-style="lada"] .card-gender { color: #00ffcc; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   CARD STYLE: KŐ (stone tablet)
+   ══════════════════════════════════════════════════════════════════════ */
+[data-card-style="ko"] .card {
+  border-radius: 6px 5px 8px 7px / 7px 8px 5px 6px; /* slightly irregular */
+  border: 3px solid #7a7a7a;
+  border-top-color: #aaaaaa;
+  border-bottom-color: #3a3a3a;
+  border-right-color: #4a4a4a;
+
+  /* Stone texture: noise-like gradient layers */
+  background-image:
+    repeating-linear-gradient(
+      47deg,
+      transparent 0px, transparent 14px,
+      rgba(255,255,255,.025) 14px, rgba(255,255,255,.025) 15px
+    ),
+    repeating-linear-gradient(
+      -23deg,
+      transparent 0px, transparent 20px,
+      rgba(0,0,0,.04) 20px, rgba(0,0,0,.04) 21px
+    );
+  background-color: #b0a898;
+
+  box-shadow:
+    inset  2px  3px 4px rgba(255,255,255,.18),
+    inset -2px -3px 4px rgba(0,0,0,.25),
+    4px 6px 14px rgba(0,0,0,.45);
+}
+
+[data-card-style="ko"] .card.male   { background-color: #a8b4c0; } /* bluish slate */
+[data-card-style="ko"] .card.female { background-color: #c0aab0; } /* warm sandstone */
+[data-card-style="ko"] .card.deceased {
+  filter: grayscale(60%) brightness(.75);
+  border-style: solid;
+}
+
+/* Top "chisel groove" instead of color stripe */
+[data-card-style="ko"] .card::before {
+  height: 4px;
+  border-radius: 0;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,.35) 0%,
+    rgba(255,255,255,.15) 50%,
+    rgba(0,0,0,.2) 100%
+  );
+}
+[data-card-style="ko"] .card.male::before,
+[data-card-style="ko"] .card.female::before {
+  background: linear-gradient(180deg,
+    rgba(0,0,0,.4) 0%,
+    rgba(255,255,255,.12) 50%,
+    rgba(0,0,0,.25) 100%
+  );
+}
+
+/* Chip/crack in corner */
+[data-card-style="ko"] .card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    /* top-left corner chip */
+    linear-gradient(135deg, rgba(0,0,0,.3) 0px, transparent 12px),
+    /* bottom-right highlight */
+    linear-gradient(315deg, rgba(0,0,0,.25) 0px, transparent 10px);
+}
+
+[data-card-style="ko"] .card-name {
+  color: #1a1410;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-shadow: 1px 1px 0 rgba(255,255,255,.3), -1px -1px 0 rgba(0,0,0,.2);
+}
+[data-card-style="ko"] .card-dates  { color: #2a2420; font-weight: 600; }
+[data-card-style="ko"] .card-age    { color: #4a4040; }
+[data-card-style="ko"] .card-gender { color: #3a4a5a; font-weight: 700; }
+[data-card-style="ko"] .card.female .card-gender { color: #5a3a4a; }
+[data-card-style="ko"] .card-note   { color: #6a6058; }
+
+/* Neon + Kő = glowing runes */
+[data-theme="neon"][data-card-style="ko"] .card {
+  background-color: #0e0e18;
+  border-color: #4040aa #1a1a60 #1a1a60 #4040aa;
+  box-shadow: 0 0 20px rgba(80,80,255,.2), inset 0 0 12px rgba(80,80,255,.05), 4px 6px 14px rgba(0,0,0,.6);
+}
+[data-theme="neon"][data-card-style="ko"] .card.male   { background-color: #080c1a; }
+[data-theme="neon"][data-card-style="ko"] .card.female { background-color: #150810; }
+[data-theme="neon"][data-card-style="ko"] .card-name {
+  color: #c0c8ff;
+  text-shadow: 0 0 10px rgba(160,160,255,.7), 1px 1px 0 rgba(0,0,0,.5);
+}
+[data-theme="neon"][data-card-style="ko"] .card-dates  { color: #8888cc; }
+[data-theme="neon"][data-card-style="ko"] .card-age    { color: #6666aa; }
+[data-theme="neon"][data-card-style="ko"] .card-gender { color: #8888ff; }
+[data-theme="neon"][data-card-style="ko"] .card::before,
+[data-theme="neon"][data-card-style="ko"] .card.male::before,
+[data-theme="neon"][data-card-style="ko"] .card.female::before {
+  background: linear-gradient(90deg, #4040cc, #8040cc);
+  height: 3px;
+}
+
+/* Barokk + Kő = carved obsidian */
+[data-theme="barokk"][data-card-style="ko"] .card {
+  background-color: #1a1420;
+  border-color: #6a4a8a #2a1840 #2a1840 #6a4a8a;
+  box-shadow: 0 0 16px rgba(180,120,255,.2), inset 0 0 10px rgba(100,50,150,.1), 4px 6px 14px rgba(0,0,0,.6);
+}
+[data-theme="barokk"][data-card-style="ko"] .card-name {
+  color: #e8d8b0;
+  text-shadow: 0 0 8px rgba(200,160,60,.4), 1px 1px 0 rgba(0,0,0,.6);
+}
+[data-theme="barokk"][data-card-style="ko"] .card-dates { color: #c0a870; }

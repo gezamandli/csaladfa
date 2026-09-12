@@ -99,7 +99,7 @@ export default function App() {
   });
 
   return (
-    <div className="app" data-theme={store.theme ?? 'perkament'}>
+    <div className="app" data-theme={store.theme ?? 'perkament'} data-card-style={store.cardStyle ?? 'karta'}>
       {/* ── Header ── */}
       <header className="site-header no-print">
         <div className="header-left">
@@ -152,6 +152,20 @@ export default function App() {
               title={t.label}
               onClick={() => store.setTheme(t.id)}
             />
+          ))}
+        </div>
+        <div className="theme-switcher" title="Kártyastílus">
+          <span className="theme-label">Stílus:</span>
+          {[
+            { id: 'karta', icon: '🃏', label: 'Kártya' },
+            { id: 'lada',  icon: '📦', label: 'Láda'   },
+            { id: 'ko',    icon: '🪨', label: 'Kő'     },
+          ].map(s => (
+            <div key={s.id}
+              className={`card-style-dot ${(store.cardStyle ?? 'karta') === s.id ? 'active' : ''}`}
+              title={s.label}
+              onClick={() => store.setCardStyle(s.id)}
+            >{s.icon}</div>
           ))}
         </div>
       </header>

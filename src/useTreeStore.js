@@ -45,6 +45,10 @@ export function useTreeStore() {
     update(s => ({ ...s, theme }));
   }, [update]);
 
+  const setCardStyle = useCallback((cardStyle) => {
+    update(s => ({ ...s, cardStyle }));
+  }, [update]);
+
   // ── Positions ────────────────────────────────────────────────────────────
   const moveCard = useCallback((id, x, y) => {
     update(s => ({ ...s, positions: { ...s.positions, [id]: { x, y } } }));
@@ -189,8 +193,10 @@ export function useTreeStore() {
     ...state,
     title: state.title ?? 'Mándli Családfa',
     theme: state.theme ?? 'perkament',
+    cardStyle: state.cardStyle ?? 'karta',
     setTitle,
     setTheme,
+    setCardStyle,
     moveCard,
     addPerson,
     editPerson,
