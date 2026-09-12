@@ -17,6 +17,7 @@ export default function App() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const fileInputRef = useRef(null);
+  const csvInputRef  = useRef(null);
 
   const printNormal = () => {
     setTemplateMode(false);
@@ -54,6 +55,16 @@ export default function App() {
     const reader = new FileReader();
     reader.onload = ev => store.importJSON(ev.target.result);
     reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleImportCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const title = file.name.replace(/\.csv$/i, '').replace(/_/g, ' ') || null;
+    const reader = new FileReader();
+    reader.onload = ev => store.importCSV(ev.target.result, title);
+    reader.readAsText(file, 'UTF-8');
     e.target.value = '';
   };
 
@@ -120,11 +131,13 @@ export default function App() {
           <button className="btn btn-cyan"   onClick={handleAutoLayout}>⚙ Auto-elrendezés</button>
           <button className="btn btn-green"  onClick={store.exportJSON}>💾 Mentés</button>
           <button className="btn btn-blue"   onClick={() => fileInputRef.current.click()}>📂 Betöltés</button>
+          <button className="btn btn-blue"   onClick={() => csvInputRef.current.click()}>📥 CSV</button>
           <button className="btn btn-excel"  onClick={() => exportToCSV(store.people, store.couples, store.relations)}>📊 Excel</button>
           <button className="btn btn-purple" onClick={printNormal}>🖨️ Nyomtatás</button>
           <button className="btn btn-teal"   onClick={printTemplate}>📋 Sablon</button>
           <button className="btn btn-gray"   onClick={() => { if(confirm('Visszaállítod az eredeti elrendezést?')) store.resetLayout(); }}>↺ Eredeti</button>
           <input ref={fileInputRef} type="file" accept=".json" style={{ display:'none' }} onChange={handleImport} />
+          <input ref={csvInputRef}  type="file" accept=".csv"  style={{ display:'none' }} onChange={handleImportCSV} />
         </div>
       </header>
 

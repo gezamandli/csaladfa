@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
   DEFAULT_PEOPLE, DEFAULT_COUPLES, DEFAULT_RELATIONS, DEFAULT_POSITIONS,
-  autoPos, makeId, CARD_W,
+  autoPos, makeId, computeAutoLayout, importFromCSV,
 } from './data';
 
 function loadFromStorage() {
@@ -50,7 +50,6 @@ export function useTreeStore() {
   const addPerson = useCallback((fields, spouseId, parentCoupleId) => {
     const id = makeId(fields.ln, fields.fn);
     update(s => {
-      // If isSelf is set, clear it from all others
       const newPeople = [
         ...s.people.map(p => fields.isSelf ? { ...p, isSelf: false } : p),
         { id, ...fields },
@@ -75,7 +74,6 @@ export function useTreeStore() {
     update(s => {
       const newPeople = s.people.map(p => {
         if (p.id === id) return { ...p, ...fields };
-        // If we're setting isSelf on this person, clear it from all others
         if (fields.isSelf) return { ...p, isSelf: false };
         return p;
       });
@@ -135,6 +133,7 @@ export function useTreeStore() {
     });
   }, [update]);
 
+  // ── JSON export/import ────────────────────────────────────────────────────
   const exportJSON = useCallback(() => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -150,10 +149,28 @@ export function useTreeStore() {
       setState(next);
       saveToStorage(next);
     } catch (e) {
-      alert('Hiba a fájl beolvasásakor: ' + e.message);
+      alert('Hiba a JSON fájl beolvasásakor: ' + e.message);
     }
   }, []);
 
+  // ── CSV import ────────────────────────────────────────────────────────────
+  const importCSV = useCallback((csvText, csvTitle) => {
+    const result = importFromCSV(csvText);
+    if (!result) { alert('Nem sikerült beolvasni a CSV fájlt. Ellenőrizd, hogy az alkalmazásból lett-e exportálva.'); return; }
+    const { people, couples, relations } = result;
+    // Auto-compute positions from the reconstructed tree
+    const positions = computeAutoLayout(people, couples, relations);
+    // Fallback: if any person has no position, use autoPos
+    people.forEach(p => { if (!positions[p.id]) positions[p.id] = autoPos(p, people); });
+    const next = {
+      title: csvTitle || state.title || 'Importált családfa',
+      people, couples, relations, positions,
+    };
+    setState(next);
+    saveToStorage(next);
+  }, [state.title]);
+
+  // Helper lookups
   const getSpouseId = useCallback((personId) => {
     const c = state.couples.find(c => c.p1 === personId || c.p2 === personId);
     if (!c) return null;
@@ -176,6 +193,7 @@ export function useTreeStore() {
     resetLayout,
     exportJSON,
     importJSON,
+    importCSV,
     getSpouseId,
     getParentCoupleId,
   };

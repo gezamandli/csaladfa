@@ -264,3 +264,132 @@ export function exportToCSV(people, couples, relations) {
   a.download = `csaladfa_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
+
+// ── CSV import ────────────────────────────────────────────────────────────
+function parseCSVRows(text) {
+  const rows = [];
+  let row = [], field = '', inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], nx = text[i + 1];
+    if (inQuote) {
+      if (ch === '"' && nx === '"') { field += '"'; i++; }
+      else if (ch === '"') { inQuote = false; }
+      else { field += ch; }
+    } else {
+      if (ch === '"') { inQuote = true; }
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && nx === '\n') i++;
+        row.push(field); field = '';
+        if (row.some(c => c.trim())) rows.push(row);
+        row = [];
+      } else { field += ch; }
+    }
+  }
+  if (field || row.length) { row.push(field); if (row.some(c => c.trim())) rows.push(row); }
+  return rows;
+}
+
+export function importFromCSV(csvText) {
+  const text = csvText.replace(/^﻿/, ''); // strip BOM
+  const rows = parseCSVRows(text);
+  if (rows.length < 2) return null;
+
+  const headers = rows[0];
+  const dataRows = rows.slice(1).filter(r => r.length >= 3);
+
+  const col = name => headers.findIndex(h => h.trim() === name);
+  const iLn      = col('Vezetéknév');
+  const iFn      = col('Keresztnév');
+  const iGender  = col('Nem');
+  const iBorn    = col('Születési év');
+  const iDied    = col('Halálozási év');
+  const iGen     = col('Generáció szint');
+  const iNote    = col('Megjegyzés');
+  const iSelf    = col('Én vagyok');
+  const iSpouse  = col('Házastárs');
+  const iParents = col('Szülők');
+
+  const norm = s => String(s).toLowerCase()
+    .replace(/[áàâä]/g, 'a').replace(/[éèê]/g, 'e').replace(/[íì]/g, 'i')
+    .replace(/[óöőô]/g, 'o').replace(/[úüűù]/g, 'u').replace(/[^a-z0-9]/g, '_');
+
+  // ── Build people ──────────────────────────────────────────────────────
+  const people = [];
+  const nameMap = {}; // "Ln Fn" → [personId, ...]
+
+  dataRows.forEach((row, i) => {
+    const ln     = (row[iLn]  ?? '').trim();
+    const fn     = (row[iFn]  ?? '').trim();
+    if (!ln && !fn) return;
+    const gender = (row[iGender] ?? '').trim() === 'Nő' ? 'female' : 'male';
+    const born   = parseInt(row[iBorn])  || null;
+    const died   = parseInt(row[iDied]) || null;
+    const gen    = parseInt(row[iGen])   ?? 0;
+    const note   = (row[iNote]  ?? '').trim();
+    const isSelf = (row[iSelf]  ?? '').trim() === 'Igen';
+    const id     = `${norm(ln)}_${norm(fn)}_${born ?? died ?? i}`;
+
+    people.push({ id, ln, fn, gender, born, died, gen, note, isSelf });
+    const key = `${ln} ${fn}`;
+    if (!nameMap[key]) nameMap[key] = [];
+    nameMap[key].push(id);
+  });
+
+  const byId = Object.fromEntries(people.map(p => [p.id, p]));
+
+  // Find best matching person by name + expected generation
+  const findId = (fullName, nearGen) => {
+    const ids = nameMap[(fullName ?? '').trim()];
+    if (!ids?.length) return null;
+    if (ids.length === 1) return ids[0];
+    return ids.reduce((best, id) => {
+      if (nearGen == null) return best;
+      const diff = g => Math.abs(byId[g].gen - nearGen);
+      return diff(id) < diff(best) ? id : best;
+    });
+  };
+
+  // ── Build couples & relations ────────────────────────────────────────
+  const couples   = [];
+  const relations = [];
+  const coupleKey = {}; // "p1id|p2id" → coupleId
+
+  const ensureCouple = (aId, bId) => {
+    const k1 = `${aId}|${bId}`, k2 = `${bId}|${aId}`;
+    if (coupleKey[k1]) return coupleKey[k1];
+    if (coupleKey[k2]) return coupleKey[k2];
+    const cId = `c_${aId}_${bId}`;
+    couples.push({ id: cId, p1: aId, p2: bId });
+    coupleKey[k1] = coupleKey[k2] = cId;
+    return cId;
+  };
+
+  // Spouse column → couples
+  dataRows.forEach((row, i) => {
+    const me = people[i];
+    if (!me) return;
+    const spouseName = (row[iSpouse] ?? '').trim();
+    if (!spouseName) return;
+    const spouseId = findId(spouseName, me.gen);
+    if (spouseId && spouseId !== me.id) ensureCouple(me.id, spouseId);
+  });
+
+  // Parents column → relations
+  dataRows.forEach((row, i) => {
+    const me = people[i];
+    if (!me) return;
+    const parentsStr = (row[iParents] ?? '').trim();
+    if (!parentsStr) return;
+    const parts = parentsStr.split(' + ');
+    if (parts.length !== 2) return;
+    const paId = findId(parts[0].trim(), me.gen - 1);
+    const pbId = findId(parts[1].trim(), me.gen - 1);
+    if (!paId || !pbId) return;
+    const cId = ensureCouple(paId, pbId);
+    if (!relations.find(r => r.coupleId === cId && r.childId === me.id))
+      relations.push({ coupleId: cId, childId: me.id });
+  });
+
+  return { people, couples, relations };
+}
