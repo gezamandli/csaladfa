@@ -710,3 +710,19 @@ body { font-family: Georgia, serif; background: #111; color: #333; min-height: 1
   background: var(--tree-bg);
 }
 .hidden-grid { display: none !important; }
+
+/* ── Fan print mode ──────────────────────────────────────────────────── */
+@media print {
+  .app.fan-mode .print-view { display: none !important; }
+  .app.fan-mode .fan-wrap {
+    display: block !important;
+    position: fixed;
+    top: 0; left: 0;
+    width: 285mm; height: 198mm;
+  }
+  .app.fan-mode .fan-wrap svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+  }
+}

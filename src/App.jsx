@@ -101,7 +101,7 @@ export default function App() {
   });
 
   return (
-    <div className="app" data-theme={store.theme ?? 'perkament'} data-card-style={store.cardStyle ?? 'karta'}>
+    <div className={`app${viewMode === 'fan' ? ' fan-mode' : ''}`} data-theme={store.theme ?? 'perkament'} data-card-style={store.cardStyle ?? 'karta'}>
       {/* ── Header ── */}
       <header className="site-header no-print">
         <div className="header-left">
@@ -137,7 +137,7 @@ export default function App() {
           <button className="btn btn-blue"   onClick={() => csvInputRef.current.click()}>📥 CSV</button>
           <button className="btn btn-excel"  onClick={() => exportToCSV(store.people, store.couples, store.relations)}>📊 Excel</button>
           <button className="btn btn-purple" onClick={printNormal}>🖨️ Nyomtatás</button>
-          <button className="btn btn-teal"   onClick={printTemplate}>📋 Sablon</button>
+          <button className="btn btn-teal"   onClick={viewMode === 'fan' ? () => { setTemplateMode(true); requestAnimationFrame(() => requestAnimationFrame(() => { window.print(); setTimeout(() => setTemplateMode(false), 800); })); } : printTemplate}>📋 Sablon</button>
           <button className="btn btn-gray"   onClick={() => { if(confirm('Visszaállítod az eredeti elrendezést?')) store.resetLayout(); }}>↺ Eredeti</button>
           <input ref={fileInputRef} type="file" accept=".json" style={{ display:'none' }} onChange={handleImport} />
           <input ref={csvInputRef}  type="file" accept=".csv"  style={{ display:'none' }} onChange={handleImportCSV} />
@@ -191,6 +191,7 @@ export default function App() {
           relations={store.relations}
           title={store.title}
           isDark={['barokk','neon'].includes(store.theme ?? 'perkament')}
+          templateMode={templateMode}
         />
       ) : null}
       <div className={`tree-wrap no-print${viewMode === 'fan' ? ' hidden-grid' : ''}`}>
